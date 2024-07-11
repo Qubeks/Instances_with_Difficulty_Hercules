@@ -208,9 +208,14 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
         switch(select("Main Menu:Reset Instance / Destroy Instance")){
 			case 1: break;
 			case 2:
-				etower_timer = 0;			
-				erasequest(60200);
-				erasequest(60201);
+				etower_timer = 0;
+				if (.@etower_timer == 1 && .@etower_timer2 == 2){
+					erasequest(60200);
+					erasequest(60201);
+				}
+				if (has_instance("1@tower") != "") {
+					instance_destroy(.@instance);
+				}				
 				close();
         }
     }
@@ -230,8 +235,12 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
 		if (getcharid(CHAR_ID_CHAR) == getpartyleader(.@party_id, 2)) {	
 			mes("Confirmed the party has been made. Would you like to reserve entrance to the Endless Tower?");
 			next();
-			.@str$ = sprintf(_$("Generate Dungeon %s"), .@md_name$);
-			switch (select(.@str$, "Enter the Dungeon", "Return to Alberta", "Difficulty Information", "Cancel")) {
+			switch( select(
+			( .@party_id && getpartyleader(.@party_id,2) && has_instance("1@tower") == "" )? "Generate dungeon "+.@md_name$:"",
+			( .@party_id && instance_id() )?"Enter the dungeon":"",
+			"Return to Alberta",
+			"Difficulty Information",
+			"Cancel")){
 				case 1:
 	// Difficulty 
 	//============================================================			
@@ -277,6 +286,7 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
 					mes("After making a reservation, you have to talk to NPC behind and select the menu 'Enter the Dungeon' to enter the dungeon.");
 					close();
 				case 2:
+					sc_start2(SC_OVERLAPEXPUP,1200000,10,20);
 					callsub(L_Enter, 0, 1, .@md_name$, .@p_name$);
 				case 3:
 					mes("I will move you to Alberta.");
@@ -290,7 +300,7 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
 					mes("Monster HP: ^ff0000[ + 0% ]^000000");
 					mes("Monster damage: + ^ff0000[ 0% ]^000000");
 					mes("Monster takes less damage: + ^ff0000[ 0% ]^000000");
-					mes("Monster EXP reward: + ^ff0000[ 0% ]^000000");
+					//mes("Monster EXP reward: + ^ff0000[ 0% ]^000000");
 					mes("^ff0000-----------------------------------------------------^000000");
 					next;
 					mes("[ Difficulty Information ]");
@@ -299,7 +309,7 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
 					mes("Monster HP: ^ff0000[ + 50% ]^000000");
 					mes("Monster damage: + ^ff0000[ 50% ]^000000");
 					mes("Monster takes less damage: + ^ff0000[ 10% ]^000000");
-					mes("Monster EXP reward: + ^ff0000[ 50% ]^000000");
+					//mes("Monster EXP reward: + ^ff0000[ 50% ]^000000");
 					mes("^ff0000-----------------------------------------------------^000000");
 					next;
 					mes("[ Difficulty Information ]");
@@ -308,7 +318,7 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
 					mes("Monster HP: ^ff0000[ + 100% ]^000000");
 					mes("Monster damage: + ^ff0000[ 100% ]^000000");
 					mes("Monster takes less damage: + ^ff0000[ 20% ]^000000");
-					mes("Monster EXP reward: + ^ff0000[ 100% ]^000000");
+					//mes("Monster EXP reward: + ^ff0000[ 100% ]^000000");
 					mes("^ff0000-----------------------------------------------------^000000");
 					next;
 					mes("[ Difficulty Information ]");
@@ -317,7 +327,7 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
 					mes("Monster HP: ^ff0000[ + 150% ]^000000");
 					mes("Monster damage: + ^ff0000[ 150% ]^000000");
 					mes("Monster takes less damage: + ^ff0000[ 30% ]^000000");
-					mes("Monster EXP reward: + ^ff0000[ 150% ]^000000");
+					//mes("Monster EXP reward: + ^ff0000[ 150% ]^000000");
 					mes("^ff0000-----------------------------------------------------^000000");
 					next;
 					mes("[ Difficulty Information ]");
@@ -326,7 +336,7 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
 					mes("Monster HP: ^ff0000[ + 200% ]^000000");
 					mes("Monster damage: + ^ff0000[ 200% ]^000000");
 					mes("Monster takes less damage: + ^ff0000[ 40% ]^000000");
-					mes("Monster EXP reward: + ^ff0000[ 200% ]^000000");
+					//mes("Monster EXP reward: + ^ff0000[ 200% ]^000000");
 					mes("^ff0000-----------------------------------------------------^000000");
 					close();	
 				case 5:
@@ -346,68 +356,7 @@ e_tower,81,105,0	script	Tower Protection Stone	2_MONEMUS,{
 		case 3:
 			end;
 		}
-	} else if (.@etower_timer2 < 2 && getcharid(1) == .@party_id) {
-		mes("If you have the dungeon generated already, you can enter it. ");
-		next;
-		switch(select("Enter the "+.@md_name$+":Return to Alberta:Difficulty Information:Cancel")) {
-		case 1:
-			callsub L_Enter,0,0;
-		case 2:
-			mes("I will move you to Alberta.");
-			close2;
-			warp "alberta",223,36;
-			end;
-		case 3:
-			mes("[ Difficulty Information ]");
-			mes("^ff0000-----------------------------------------------------^000000");
-			mes("Difficulty Level: ^ff0000[ Easy ]^000000");
-			mes("Monster HP: ^ff0000[ + 0% ]^000000");
-			mes("Monster damage: + ^ff0000[ 0% ]^000000");
-			mes("Monster takes less damage: + ^ff0000[ 0% ]^000000");
-			mes("Monster EXP reward: + ^ff0000[ 0% ]^000000");
-			mes("^ff0000-----------------------------------------------------^000000");
-			next;
-			mes("[ Difficulty Information ]");
-			mes("^ff0000-----------------------------------------------------^000000");
-			mes("Difficulty Level: ^ff0000[ Veteran ]^000000");
-			mes("Monster HP: ^ff0000[ + 50% ]^000000");
-			mes("Monster damage: + ^ff0000[ 50% ]^000000");
-			mes("Monster takes less damage: + ^ff0000[ 10% ]^000000");
-			mes("Monster EXP reward: + ^ff0000[ 50% ]^000000");
-			mes("^ff0000-----------------------------------------------------^000000");
-			next;
-			mes("[ Difficulty Information ]");
-			mes("^ff0000-----------------------------------------------------^000000");
-			mes("Difficulty Level: ^ff0000[ Nightmare ]^000000");
-			mes("Monster HP: ^ff0000[ + 100% ]^000000");
-			mes("Monster damage: + ^ff0000[ 100% ]^000000");
-			mes("Monster takes less damage: + ^ff0000[ 20% ]^000000");
-			mes("Monster EXP reward: + ^ff0000[ 100% ]^000000");
-			mes("^ff0000-----------------------------------------------------^000000");
-			next;
-			mes("[ Difficulty Information ]");
-			mes("^ff0000-----------------------------------------------------^000000");
-			mes("Difficulty Level: ^ff0000[ Hell ]^000000");
-			mes("Monster HP: ^ff0000[ + 150% ]^000000");
-			mes("Monster damage: + ^ff0000[ 150% ]^000000");
-			mes("Monster takes less damage: + ^ff0000[ 30% ]^000000");
-			mes("Monster EXP reward: + ^ff0000[ 150% ]^000000");
-			mes("^ff0000-----------------------------------------------------^000000");
-			next;
-			mes("[ Difficulty Information ]");
-			mes("^ff0000-----------------------------------------------------^000000");
-			mes("Difficulty Level: ^ff0000[ Torment ]^000000");
-			mes("Monster HP: ^ff0000[ + 200% ]^000000");
-			mes("Monster damage: + ^ff0000[ 200% ]^000000");
-			mes("Monster takes less damage: + ^ff0000[ 40% ]^000000");
-			mes("Monster EXP reward: + ^ff0000[ 200% ]^000000");
-			mes("^ff0000-----------------------------------------------------^000000");
-			close();	
-		case 4:
-			close();			
-		}
-	}
-	else if (.@etower_timer == 1 && .@etower_timer2 == 2) {
+	} else if (.@etower_timer == 1 && .@etower_timer2 == 2) {
 		.@dun_lim_time = etower_timer + 604800; // 1 week
 		.@dun_lim_time2 = etower_timer + 14400; // 4 hours
 		.@dun_cur_time = gettimetick(GETTIMETICK_UNIXTIME);
@@ -643,7 +592,7 @@ freeloop(true);
 
 	}
 freeloop(false);	
-
+	
 	return;
 }
 // Reward Function
@@ -680,8 +629,9 @@ function	script	F_Tower_Reward	{
 function	script	F_Tower_Exp	{
 	setarray .@bonusExp[1],10,20,40,80,100;
 	'bonuzExp = .@bonusExp['level_mode];
-	set BaseExp, BaseExp + (getmonsterinfo(killedrid,3) * 'bonuzExp);
-	set JobExp, JobExp + (getmonsterinfo(killedrid,4) * 'bonuzExp);	
+	
+	getexp( getmonsterinfo( killedrid, MOB_BASEEXP) * 'bonuzExp),( getmonsterinfo( killedrid, MOB_JOBEXP) * 'bonuzExp);
+
 return;
 }
 //== Core Functions ========================================
@@ -1452,9 +1402,9 @@ OnInstanceInit:
 	end;
 
 OnMyMobDead:
-	
 	.@map$ = instance_mapname("1@tower");
 	.@mob_dead_num = mobcount(.@map$, instance_npcname("#1F Controller")+"::OnMyMobDead");
+	//callfunc("F_Tower_Exp");	
 	if (.@mob_dead_num < 1) {
 		initnpctimer();
 		//SetItemPartyInMap in_102floor 1
@@ -2513,4 +2463,353 @@ OnTimer1000:
 	stopnpctimer();
 	donpcevent(instance_npcname("#Effect30")+"::OnEnable");
 	end;
+}
+
+// Settings :
+//	-	Only required to edit the ShopSetting() Function
+//			Notes : You may also add / remove Menu ( If any ) 
+//	-	Shop Currency can be either ItemID or Variable Name, but must write within Quotation Marks ( "" )
+//			Ex. of Variable.	->	Zeny , #CASHPOINTS , #KAFRAPOINTS , CustomVariable , #CustomVariable
+//	-	ERROR Message are used to show Invalid Settings in your NPC.
+
+
+// Leave this alone...
+-	shop	Endless_Tower_Shop	-1,512:100
+
+
+e_tower,83,111,4	script	[ E Tower Shop ]	2_MONEMUS,{
+function ShopSettings;
+function ValidateCost;
+function CurrencyInfo;
+function ClearData;
+function ValueConvert;
+function ErrorNotice;
+mes((gettime(3)>= 6&&gettime(3)<= 12?"Good Morning":(gettime(3)>=13&&gettime(3)<=18?"Good afternoon":"Good evening"))+", ^FFA500"+strcharinfo(0)+"^000000 !");
+mes("Each Shop from the menu may purchase using different ^FF0000E-Tower Points^000000.");
+next;
+// Menu Selection
+select("[ Easy Points ] Consumable"
+		,"[ Easy Points ] Equips"
+		,"[ Easy Points ] Etc"
+		,"[ Veteran Points ] Consumable"
+		,"[ Veteran Points ] Equips"
+		,"[ Veteran Points ] Etc"
+		,"[ Nightmare Points ] Consumable"
+		,"[ Nightmare Points ] Equips"
+		,"[ Nightmare Points ] Etc"
+		,"[ Hell Points ] Consumable"
+		,"[ Hell Points ] Equips"
+		,"[ Hell Points ] Etc"
+		,"[ Torment Points ] Consumable"
+		,"[ Torment Points ] Equips"
+		,"[ Torment Points ] Etc");		
+
+ClearData();
+ShopSettings( @menu );
+npcshopitem "Endless_Tower_Shop",512,100;
+npcshopdelitem "Endless_Tower_Shop",512;
+for(set .@i,0; .@i < getarraysize( @ItemLists ); set .@i,.@i+1)
+	npcshopadditem "Endless_Tower_Shop",@ItemLists[.@i],@ItemCost[.@i];
+mes("^ff0000-----------------------------------------------------^000000");	
+CurrencyInfo( @Currency$ );
+mes("^ff0000-----------------------------------------------------^000000");
+callshop "Endless_Tower_Shop",1;
+npcshopattach "Endless_Tower_Shop";
+end;
+
+
+function	ShopSettings	{
+	switch( getarg(0) ){
+		case 1:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_EASY";
+			// Item ID Lists
+			setarray @ItemLists[0],12114		// Elemental_Fire
+									,12115		// Elemental_Water
+									,12116		// Elemental_Earth
+									,12117;		// Elemental_Wind
+			// Item Price
+			setarray @ItemCost[0],1			// Elemental_Fire
+									,1		// Elemental_Water
+									,1		// Elemental_Earth
+									,1;		// Elemental_Wind
+			break;
+		case 2:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_EASY";
+			// Item ID Lists
+			setarray @ItemLists[0],2315;	// Chain_Mail_
+			// Item Price
+			setarray @ItemCost[0],5;		// Chain_Mail_
+			break;
+		case 3:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_EASY";
+			// Item ID Lists
+			setarray @ItemLists[0],7619		// Enriched_Elunium
+									,7620;	// Enriched_Oridecon
+			// Item Price
+			setarray @ItemCost[0],1		// Enriched_Elunium
+									,1;	// Enriched_Oridecon
+			break;
+		case 4:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_VETERAN";
+			// Item ID Lists
+			setarray @ItemLists[0],12090		// Agi_Dish10
+									,12095		// Dex_Dish10
+									,12080		// Int_Dish10
+									,12100		// Luk_Dish10
+									,12075		// Str_Dish10
+									,12085;		// Vit_Dish10
+			// Item Price
+			setarray @ItemCost[0],5		// Agi_Dish10
+									,5		// Dex_Dish10
+									,5		// Int_Dish10
+									,5		// Luk_Dish10
+									,5		// Str_Dish10
+									,5;		// Vit_Dish10
+			break;
+		case 5:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_VETERAN";
+			// Item ID Lists
+			setarray @ItemLists[0],2315;	// Chain_Mail_
+			// Item Price
+			setarray @ItemCost[0],5;		// Chain_Mail_					
+			break;
+		case 6:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_VETERAN";
+			// Item ID Lists
+			setarray @ItemLists[0],7619		// Enriched_Elunium
+									,7620;	// Enriched_Oridecon
+			// Item Price
+			setarray @ItemCost[0],1		// Enriched_Elunium
+									,1;	// Enriched_Oridecon
+			break;	
+		case 7:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_NIGHTMARE";
+			// Item ID Lists
+			setarray @ItemLists[0],12114		// Elemental_Fire
+									,12115		// Elemental_Water
+									,12116		// Elemental_Earth
+									,12117		// Elemental_Wind
+									,100128;	// Noblesse_Rifine_Ticket
+			// Item Price
+			setarray @ItemCost[0],1			// Elemental_Fire
+									,1		// Elemental_Water
+									,1		// Elemental_Earth
+									,1		// Elemental_Wind
+									,1;		// Noblesse_Rifine_Ticket
+			break;
+		case 8:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_NIGHTMARE";
+			// Item ID Lists
+			setarray @ItemLists[0],2315;	// Chain_Mail_
+			// Item Price
+			setarray @ItemCost[0],5;		// Chain_Mail_
+			break;
+		case 9:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_NIGHTMARE";
+			// Item ID Lists
+			setarray @ItemLists[0],7619			// Enriched_Elunium
+									,7620		// Enriched_Oridecon
+									,1000333	// Enriched_Ethernium
+									,1000334;	// Enriched_Etherdeocon
+
+			// Item Price
+			setarray @ItemCost[0],1			// Enriched_Elunium
+									,1;		// Enriched_Oridecon
+			break;
+		case 10:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_HELL";
+			// Item ID Lists
+			setarray @ItemLists[0],12090		// Agi_Dish10
+									,12095		// Dex_Dish10
+									,12080		// Int_Dish10
+									,12100		// Luk_Dish10
+									,12075		// Str_Dish10
+									,12085;		// Vit_Dish10
+
+			// Item Price
+			setarray @ItemCost[0],5		// Agi_Dish10
+									,5		// Dex_Dish10
+									,5		// Int_Dish10
+									,5		// Luk_Dish10
+									,5		// Str_Dish10
+									,5;		// Vit_Dish10
+			break;
+		case 11:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_HELL";
+			// Item ID Lists
+			setarray @ItemLists[0],2315;	// Chain_Mail_
+			// Item Price
+			setarray @ItemCost[0],5;		// Chain_Mail_
+			break;
+		case 12:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_HELL";
+			// Item ID Lists
+			setarray @ItemLists[0],7619			// Enriched_Elunium
+									,7620;		// Enriched_Oridecon
+			// Item Price
+			setarray @ItemCost[0],1			// Enriched_Elunium
+									,1;		// Enriched_Oridecon
+			break;
+		case 13:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_TORMENT";
+			// Item ID Lists
+			setarray @ItemLists[0],12090		// Agi_Dish10
+									,12095		// Dex_Dish10
+									,12080		// Int_Dish10
+									,12100		// Luk_Dish10
+									,12075		// Str_Dish10
+									,12085;		// Vit_Dish10
+
+			// Item Price
+			setarray @ItemCost[0],5		// Agi_Dish10
+									,5		// Dex_Dish10
+									,5		// Int_Dish10
+									,5		// Luk_Dish10
+									,5		// Str_Dish10
+									,5;		// Vit_Dish10
+			break;
+		case 14:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_TORMENT";
+			// Item ID Lists
+			setarray @ItemLists[0],2315;	// Chain_Mail_
+			// Item Price
+			setarray @ItemCost[0],5;		// Chain_Mail_
+			break;
+		case 15:
+			// Currency [ Item ID / Variable Name ]
+			set @Currency$,"#ETOWER_TORMENT";
+			// Item ID Lists
+			setarray @ItemLists[0],7619			// Enriched_Elunium
+									,7620;		// Enriched_Oridecon
+			// Item Price
+			setarray @ItemCost[0],1			// Enriched_Elunium
+									,1;		// Enriched_Oridecon								
+			break;
+		default:
+			ErrorNotice( "Invalid Menu Selection for Menu "+@menu+"." );
+			close;
+	}
+	
+	
+if( @Currency$ == "" )
+	ErrorNotice( "Invalid Currency Setting in Menu "+@menu+" ." );
+if( getarraysize( @ItemCost ) != getarraysize( @ItemLists ) || getarraysize( @ItemLists ) != getarraysize( @ItemCost ) )
+	ErrorNotice( "Missing or Extra Value of Item or Cost Settings in Menu "+@menu+" ." );
+return;
+}
+
+function	ErrorNotice	{
+	mes("^FF0000ERROR^000000 - "+getarg(0));
+	mes("^00FF00____________________________^000000");
+	mes("Inform this Message to ^0000FFGame Staffs^000000 immediately !");
+	close;
+}
+
+function	CurrencyInfo	{
+	if( getitemname( atoi( getarg(0) ) ) != "null" ){
+		mes("Currency : [ ^FF0000"+getitemname( atoi( getarg(0) ) )+"^000000 ]");
+		mes("Available Amount : [ ^0000FF"+ValueConvert( countitem( atoi( getarg(0) ) ) )+"^000000 ]");
+	}else if( getitemname( atoi( getarg(0) ) ) == "null" ){
+		mes("Currency : [ ^FF0000"+getarg(0)+"^000000 ]");
+		mes("Available Amount : [ ^0000FF"+ValueConvert( getd( getarg(0) ) )+"^000000 ]");
+	}
+return;
+}
+
+function	ValidateCost	{
+	if( getitemname( atoi( getarg(0) ) ) != "null" ){
+		if( countitem( atoi( getarg(0) ) ) < getarg(1) ) return 1;
+	}else{
+		if( getd( getarg(0) ) < getarg(1) ) return 1;
+	}
+return 0;
+}
+
+function ClearData	{
+	set @Currency$,"";
+	set @TotalCost,0;
+	deletearray @bought_nameid[0],getarraysize( @bought_nameid );
+	deletearray @bought_quantity[0],getarraysize( @bought_quantity );
+	deletearray @ItemLists[0],getarraysize( @ItemLists );
+	deletearray @ItemCost[0],getarraysize( @ItemCost );
+return;
+}
+
+function    ValueConvert    {
+    set .@num, atoi(""+getarg(0));
+    if ( .@num == 0 || .@num >= 2147483647 ) return getarg(0);
+    set .@l, getstrlen(""+.@num);
+    
+    function pow10 {
+        set .@res, 1;
+        for ( set .@j, 0; .@j < getarg(0); set .@j, .@j + 1 )
+            set .@res, .@res * 10;
+        return .@res;
+    }
+    
+    for ( set .@i, 0; .@i < .@l; set .@i, .@i + 1 ) {
+        set .@num$, .@num % pow10(.@i + 1) / pow10(.@i) + .@num$;
+        if ( (.@i + 1) % 3 == 0 && .@i + 1 != .@l ) set .@num$, "," + .@num$;
+    }
+    return .@num$;
+}
+
+
+OnBuyItem:
+	ShopSettings( @menu );
+	for(set @i,0; @i < getarraysize( @bought_nameid ); set @i,@i+1)
+		for(set @j,0; @j < getarraysize( @ItemLists ); set @j,@j+1)
+			if( @ItemLists[@j] == @bought_nameid[@i] )
+			set @TotalCost,@TotalCost + ( @ItemCost[@j] * @bought_quantity[@i] );
+	mes(" ^FF0000BILLING LIST^000000");
+	for( set @i,0; @i < getarraysize( @bought_nameid ); set @i,@i+1 )
+			mes(" ^FF0000"+@bought_quantity[@i]+" x ^0000FF"+getitemname( @bought_nameid[@i] )+"^000000");
+
+	if( getitemname( atoi( @Currency$ ) ) != "null" )
+		mes(" > Total Cost : ^0000FF"+ValueConvert( @TotalCost )+" x "+getitemname( atoi( @Currency$ ) )+"^000000");
+	else if( getitemname( atoi( @Currency$ ) ) == "null" ){
+		mes(" > Total Cost : [ ^0000FF"+ValueConvert( @TotalCost )+ " ] "+@Currency$+"^000000");
+	}
+	
+	if( ValidateCost( @Currency$,@TotalCost ) ){
+		if( getitemname( atoi( @Currency$ ) ) != "null" )
+			mes(" > [ ^FF0000X^000000 ] Insufficient ^0000FF"+getitemname( atoi( @Currency$ ) )+"^000000");
+		else{
+			mes(" > [ ^FF0000X^000000 ] Insufficient ^0000FF"+@Currency$+"^000000");
+		}
+	}else{
+		if( select( "^0000FFPurchase^000000:Cancel" ) == 1 ){
+			if( getitemname( atoi( @Currency$ ) ) != "null" )
+				delitem atoi( @Currency$ ),@TotalCost;
+			else{
+				set getd( @Currency$ ),getd( @Currency$ ) - @TotalCost;
+			}
+			for(set @i,0; @i < getarraysize( @bought_nameid ); set @i,@i+1)
+				getitem @bought_nameid[@i],@bought_quantity[@i];
+			message strcharinfo(0),"Purchased "+getarraysize( @bought_nameid )+" Items.";
+			mes("Thank you for shopping.");
+		}
+	}
+ClearData();
+close;
+OnInit:
+	if (strnpcinfo(NPC_MAP) == "") // Not in a map, can't set view data
+		end;
+
+	setunitdata(getnpcid(), UDT_GROUP, 27);
+end;
 }
